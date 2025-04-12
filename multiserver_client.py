@@ -6,8 +6,10 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 
 from langchain_openai import ChatOpenAI
-model = ChatOpenAI(model="gpt-4o")
+model = ChatOpenAI(model="gpt-4o-mini")
 
+from dotenv import load_dotenv
+os.environ['TAVILY_API_KEY'] = os.environ.get("TAVILY_API_KEY")
 
 async def main():
 
@@ -22,8 +24,8 @@ async def main():
                     "args": [math_server_path],
                     "transport": "stdio",
                 },
-                "weather": {
-                    # make sure you start your weather server on port 8000
+                "WebSearch": {
+                    # make sure you start your WebSearch server on port 8000
                     "url": "http://localhost:8000/sse",
                     "transport": "sse",
                 }
@@ -31,9 +33,9 @@ async def main():
         ) as client:
             agent = create_react_agent(model, client.get_tools())
             math_response = await agent.ainvoke({"messages": "what's (3 + 5) x 12?"})
-            weather_response = await agent.ainvoke({"messages": "what is the weather in nyc?"})
+            web_response = await agent.ainvoke({"messages": "what is the weather in Kolkata?"})
             print('1st Reponse:',math_response['messages'][-1].content)
-            print('2nd Reponse:',weather_response['messages'][-1].content)
+            print('2nd Reponse:',web_response['messages'][-1].content)
 
 if __name__ == "__main__":
     asyncio.run(main())
